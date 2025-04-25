@@ -22,11 +22,4 @@ app.post("/deposit", async (req: Request, res: Response) => {
     res.json({ depositId })
 })
 
-app.get("/accounts/:accountId", async (req: Request, res: Response) => {
-    const accountId = req.params.accountId;
-    // const account = accounts.find((account: any) => account.accountId === accountId);
-    const [accountData] = await connection.query("select * from ccca.account where account_id = $1", [accountId]);
-    res.json(accountData);
-});
-
 app.listen(3000)
