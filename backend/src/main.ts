@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import crypto from "crypto";
 import pgp from "pg-promise";
 import { validateCpf } from "./validateCpf";
+import { isValidPassword } from "./validatePassword";
 
 const app = express();
 app.use(express.json());
@@ -9,20 +10,12 @@ app.use(express.json());
 // const accounts: any = [];
 const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
 
-function isValidName (name: string) {
+export function isValidName(name: string) {
     return name.match(/[a-zA-Z] [a-zA-Z]+/);
 }
 
-function isValidEmail (email: string) {
+export function isValidEmail(email: string) {
     return email.match(/^(.+)\@(.+)$/);
-}
-
-function isValidPassword (password: string) {
-    if (password.length < 8) return false;
-    if (!password.match(/\d+/)) return false;
-    if (!password.match(/[a-z]+/)) return false;
-    if (!password.match(/[A-Z]+/)) return false;
-    return true;
 }
 
 app.post("/signup", async (req: Request, res: Response) => {
