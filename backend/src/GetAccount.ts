@@ -1,17 +1,33 @@
-import AccountDAO from "./AccountDAO";
+import AccountRepository from "./AccountRepository";
 
 export default class GetAccount {
     constructor(
-        readonly accountDAO: AccountDAO
+        readonly accountRepository: AccountRepository
     ) { }
 
-    async execute(accountId: string) {
-        const accountData = await this.accountDAO.getAccountById(accountId)
-        const accountAssetsData = await this.accountDAO.getAccountAssets(accountId)
-        accountData.assets = []
-        for (const accountAssetData of accountAssetsData) {
-            accountData.assets.push({ assetId: accountAssetData.asset_id, quantity: parseFloat(accountAssetData.quantity) })
+    async execute(accountId: string): Promise<OutPut> {
+        const account = await this.accountRepository.getAccountById(accountId)
+        const accountAssetsData = await this.accountRepository.getAccountAssets(accountId)
+        const output: OutPut = {
+            accountId: account.accountId,
+            name: account.name,
+            email: account.email,
+            document: account.document,
+            password: account.password,
+            assets: []
         }
-        return accountData
+        for (const accountAssetData of accountAssetsData) {
+            output.assets.push({ assetId: accountAssetData.assetId, quantity: accountAssetData.getQuantity() })
+        }
+        return output
     }
+}
+
+type OutPut = {
+    accountId: string,
+    name: string,
+    email: string,
+    document: string,
+    password: string,
+    assets: { assetId: string, quantity: number }[]
 }

@@ -1,17 +1,26 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { deposit, getOrder, placeOrder, withdraw } from "./application";
 import Signup from "./Signup";
-import { AccountDAODatabase } from "./AccountDAO";
+import { AccountRepositoryDatabase } from "./AccountRepository";
 import GetAccount from "./GetAccount";
+import Withdraw from "./Withdraw";
+import Deposit from "./Deposit";
+import PlaceOrder from "./PlaceOrder";
+import { OrderDAODatabase } from "./OrderDAO";
+import GetOrder from "./GetOrder";
 
 const app = express();
 app.use(express.json());
 app.use(cors())
 
-const accountDAO = new AccountDAODatabase();
-const signup = new Signup(accountDAO)
-const getAccount = new GetAccount(accountDAO)
+const accountRepository = new AccountRepositoryDatabase();
+const orderDAO = new OrderDAODatabase()
+const signup = new Signup(accountRepository)
+const getAccount = new GetAccount(accountRepository)
+const withdraw = new Withdraw(accountRepository)
+const deposit = new Deposit(accountRepository)
+const placeOrder = new PlaceOrder(orderDAO)
+const getOrder = new GetOrder(orderDAO)
 
 app.post("/signup", async (req: Request, res: Response) => {
     try {
@@ -33,15 +42,14 @@ app.get("/accounts/:accountId", async (req: Request, res: Response) => {
 
 app.post("/deposit", async (req: Request, res: Response) => {
     const input = req.body;
-    await deposit(input)
+    await deposit.execute(input)
     res.end()
 })
-
 
 app.post("/withdraw", async (req: Request, res: Response) => {
     try {
         const input = req.body;
-        await withdraw(input)
+        await withdraw.execute(input)
         res.end();
     } catch (e: any) {
         res.status(422).json({ error: e.message })
@@ -51,13 +59,13 @@ app.post("/withdraw", async (req: Request, res: Response) => {
 //place-order
 app.post("/place-order", async (req: Request, res: Response) => {
     const input = req.body;
-    const output = await placeOrder(input)
+    const output = await placeOrder.execute(input)
     res.json(output)
 })
 
 app.get("/orders/:orderId", async (req: Request, res: Response) => {
     const orderId = req.params.orderId
-    const output = await getOrder(orderId)
+    const output = await getOrder.execute(orderId)
     res.json(output)
 })
 
