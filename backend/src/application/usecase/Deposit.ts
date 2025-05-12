@@ -1,5 +1,5 @@
-import AccountAsset from "./AccountAsset";
-import AccountRepository from "./AccountRepository";
+import AccountAsset from "../../domain/AccountAsset";
+import AccountRepository from "../../infra/repository/AccountRepository";
 
 export default class Deposit {
     constructor(

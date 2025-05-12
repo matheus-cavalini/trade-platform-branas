@@ -1,4 +1,4 @@
-import OrderDAO from "./OrderDAO"
+import OrderDAO from "../../infra/repository/OrderRepository"
 
 export default class GetOrder {
     constructor(
@@ -8,12 +8,12 @@ export default class GetOrder {
     async execute(orderId: string) {
         const orderData = await this.orderDAO.getOrderById(orderId)
         const order = {
-            orderId: orderData.order_id,
-            marketId: orderData.market_id,
-            accountId: orderData.account_id,
+            orderId: orderData.orderId,
+            marketId: orderData.marketId,
+            accountId: orderData.accountId,
             side: orderData.side,
-            quantity: parseFloat(orderData.quantity),
-            price: parseFloat(orderData.price),
+            quantity: orderData.quantity,
+            price: orderData.price,
             status: orderData.status,
             timestamp: orderData.timestamp
         }

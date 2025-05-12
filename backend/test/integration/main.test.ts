@@ -124,8 +124,8 @@ test("Deve criar uma ordem de venda", async () => {
         marketId: "BTC/USD",
         accountId: outputSignup.accountId,
         side: "sell",
-        quantity: 1,
-        price: 94000
+        quantity: "1",
+        price: "94000"
     }
     const responsePlaceOrder = await axios.post("http://localhost:3000/place-order", inputPlaceOrder)
     const outputPlaceOrder = responsePlaceOrder.data;
