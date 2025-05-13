@@ -4,6 +4,8 @@ import DatabaseConnection from "../database/DatabaseConnection";
 export default interface OrderRepository {
     saveOrder(order: Order): Promise<void>
     getOrderById(orderId: string): Promise<Order>
+    getOrdersByMarketIdAndStatus(marketId: string, status: string): Promise<Order[]>
+    deleteAll(): Promise<void>
 }
 
 export class OrderRepositoryDatabase implements OrderRepository {
@@ -19,4 +21,18 @@ export class OrderRepositoryDatabase implements OrderRepository {
         const [orderData] = await this.connection.query("select * from ccca.order where order_id = $1", [orderId])
         return new Order(orderData.order_id, orderData.market_id, orderData.account_id, orderData.side, orderData.quantity, orderData.price, orderData.status, orderData.timestamp);
     }
+
+    async getOrdersByMarketIdAndStatus(marketId: string, status: string): Promise<Order[]> {
+        const ordersData = await this.connection.query("select * from ccca.order where market_id = $1 and status = $2", [marketId, status])
+        const orders: Order[] = [];
+        for (const orderData of ordersData) {
+            orders.push(new Order(orderData.order_id, orderData.market_id, orderData.account_id, orderData.side, orderData.quantity, orderData.price, orderData.status, orderData.timestamp))
+        }
+        return orders;
+    }
+
+    async deleteAll() {
+        await this.connection.query("delete from ccca.order", [])
+    }
+
 }
