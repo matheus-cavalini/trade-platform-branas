@@ -6,8 +6,10 @@ export default class Order {
         readonly side: string,
         readonly quantity: number,
         readonly price: number,
-        readonly status: string,
+        public status: string,
         readonly timestamp: Date,
+        public fillQuantity: number = 0,
+        public fillPrice: number = 0
     ) { }
 
     static create(
@@ -20,6 +22,8 @@ export default class Order {
         const orderId = crypto.randomUUID()
         const status = "open"
         const timestamp = new Date()
-        return new Order(orderId, marketId, accountId, side, quantity, price, status, timestamp)
+        const fillQuantity = 0;
+        const fillPrice = 0;
+        return new Order(orderId, marketId, accountId, side, quantity, price, status, timestamp, fillQuantity, fillPrice)
     }
 }
