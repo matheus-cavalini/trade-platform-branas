@@ -1,9 +1,8 @@
-import { isValidPassword } from "../../src/domain/validatePassword"
+import Password from "../../src/domain/Password"
 
 test("Deve validar a senha", () => {
     const password = "abcdE@1234"
-    const isValid = isValidPassword(password)
-    expect(isValid).toBe(true)
+    expect(new Password(password)).toBeDefined();
 })
 
 test.each([
@@ -13,6 +12,5 @@ test.each([
     "123456789aaa",
     "12345678"
 ])("Não deve validar a senha", async (password: string) => {
-    const isValid = isValidPassword(password)
-    expect(isValid).toBe(false)
+    expect(() => new Password(password)).toThrow("Invalid password")
 })

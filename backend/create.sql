@@ -34,3 +34,16 @@ create table
 		timestamp timestamptz,
 		primary key (order_id)
 	);
+
+create table
+	ccca.trade (
+		trade_id uuid,
+		market_id text,
+		buy_order_id uuid,
+		sell_order_id uuid,
+		side text,
+		quantity numeric,
+		price numeric,
+		timestamp timestamptz,
+		primary key (trade_id)
+	);

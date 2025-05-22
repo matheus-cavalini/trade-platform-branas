@@ -153,7 +153,7 @@ test("Deve criar uma ordem de venda", async () => {
     expect(outputGetOrder.timestamp).toBeDefined()
 });
 
-test.only("Deve criar uma ordem de compra e venda e executa-las", async () => {
+test("Deve criar uma ordem de compra e venda e executa-las", async () => {
     const marketId = `BTC/USD${Math.random()}`;
     const inputSignup = {
         name: "John Doe",
@@ -199,6 +199,93 @@ test.only("Deve criar uma ordem de compra e venda e executa-las", async () => {
     expect(messages.at(0).sells).toHaveLength(1)
     expect(messages.at(1).buys).toHaveLength(0)
     expect(messages.at(1).sells).toHaveLength(0)
+    const responseGetTrades = await axios.get(`http://localhost:3000/markets/${marketId.replace("/", "-")}/trades`)
+    const outputGetTrades = responseGetTrades.data;
+    expect(outputGetTrades).toHaveLength(1)
+});
+
+test("Deve criar varias ordens de compra e venda e executa-las", async () => {
+    const marketId = `BTC/USD${Math.random()}`;
+    const inputSignup = {
+        name: "John Doe",
+        email: "john.doe@gmail.com",
+        document: "97456321558",
+        password: "asdQWE123"
+    }
+    const responseSignup = await axios.post("http://localhost:3000/signup", inputSignup);
+    const outputSignup = responseSignup.data;
+    const inputPlaceOrder1 = {
+        marketId,
+        accountId: outputSignup.accountId,
+        side: "sell",
+        quantity: 1,
+        price: 94000
+    }
+    await axios.post("http://localhost:3000/place-order", inputPlaceOrder1)
+    const inputPlaceOrder2 = {
+        marketId,
+        accountId: outputSignup.accountId,
+        side: "sell",
+        quantity: 1,
+        price: 94000
+    }
+    await axios.post("http://localhost:3000/place-order", inputPlaceOrder2)
+
+    const inputPlaceOrder3 = {
+        marketId,
+        accountId: outputSignup.accountId,
+        side: "buy",
+        quantity: 2,
+        price: 94500
+    }
+    await axios.post("http://localhost:3000/place-order", inputPlaceOrder3)
+
+    const responseGetDepth = await axios.get(`http://localhost:3000/depth/${marketId.replace("/", "-")}`)
+    const outputGetDepth = responseGetDepth.data;
+    console.log(outputGetDepth)
+    expect(outputGetDepth.sells).toHaveLength(0)
+    expect(outputGetDepth.buys).toHaveLength(0)
+});
+
+test.only("Deve criar varias ordens de compra e venda com preços diferentes e executa-las", async () => {
+    const marketId = `BTC/USD${Math.random()}`;
+    const inputSignup = {
+        name: "John Doe",
+        email: "john.doe@gmail.com",
+        document: "97456321558",
+        password: "asdQWE123"
+    }
+    const responseSignup = await axios.post("http://localhost:3000/signup", inputSignup);
+    const outputSignup = responseSignup.data;
+    const inputPlaceOrder1 = {
+        marketId,
+        accountId: outputSignup.accountId,
+        side: "sell",
+        quantity: 1,
+        price: 94500
+    }
+    await axios.post("http://localhost:3000/place-order", inputPlaceOrder1)
+    const inputPlaceOrder2 = {
+        marketId,
+        accountId: outputSignup.accountId,
+        side: "sell",
+        quantity: 1,
+        price: 94000
+    }
+    await axios.post("http://localhost:3000/place-order", inputPlaceOrder2)
+
+    const inputPlaceOrder3 = {
+        marketId,
+        accountId: outputSignup.accountId,
+        side: "buy",
+        quantity: 2,
+        price: 94500
+    }
+    const responsePlaceOrder3 = await axios.post("http://localhost:3000/place-order", inputPlaceOrder3)
+    const outputPlaceOrder3 = responsePlaceOrder3.data;
+    const responseGetOrder3 = await axios.get(`http://localhost:3000/orders/${outputPlaceOrder3.orderId}`)
+    const outputGetOrder3 = responseGetOrder3.data;
+    console.log(outputGetOrder3)
 });
 
 afterEach(async () => {

@@ -14,10 +14,10 @@ export default class GetDepth {
             sells: []
         }
         for (const price in index.buy) {
-            output.buys.push({ quantity: parseInt(index.buy[price]), price: parseFloat(price) });
+            output.buys.push({ quantity: index.buy[price], price: parseFloat(price) });
         }
         for (const price in index.sell) {
-            output.sells.push({ quantity: parseInt(index.sell[price]), price: parseFloat(price) });
+            output.sells.push({ quantity: index.sell[price], price: parseFloat(price) });
         }
         return output;
     }

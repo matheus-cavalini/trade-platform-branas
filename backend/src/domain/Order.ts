@@ -26,4 +26,16 @@ export default class Order {
         const fillPrice = 0;
         return new Order(orderId, marketId, accountId, side, quantity, price, status, timestamp, fillQuantity, fillPrice)
     }
+
+    fill(quantity: number, price: number) {
+        this.fillPrice = ((this.fillQuantity * this.fillPrice) + (quantity * price)) / (this.fillQuantity + quantity)
+        this.fillQuantity += quantity;
+        if (this.getAvailableQuantity() === 0) {
+            this.status = "closed";
+        }
+    }
+
+    getAvailableQuantity() {
+        return this.quantity - this.fillQuantity;
+    }
 }

@@ -1,9 +1,12 @@
 import Order from "../../domain/Order";
+import Trade from "../../domain/Trade";
 import OrderRepository from "../../infra/repository/OrderRepository";
+import TradeRepository from "../../infra/repository/TradeRepository";
 
 export default class ExecuteOrder {
     constructor(
-        readonly orderRepository: OrderRepository
+        readonly orderRepository: OrderRepository,
+        readonly tradeRepository: TradeRepository
     ) { }
 
     getHighestBuy(orders: Order[]) {
@@ -17,25 +20,22 @@ export default class ExecuteOrder {
     }
 
     async execute(input: Input): Promise<void> {
-        const orders = await this.orderRepository.getOrdersByMarketIdAndStatus(input.marketId, "open")
-        const highestBuy = this.getHighestBuy(orders)
-        const lowestSell = this.getLowestSell(orders)
-        if (highestBuy && lowestSell && highestBuy.price >= lowestSell.price) {
+        while (true) {
+            const orders = await this.orderRepository.getOrdersByMarketIdAndStatus(input.marketId, "open")
+            const highestBuy = this.getHighestBuy(orders)
+            const lowestSell = this.getLowestSell(orders)
+            if (!highestBuy) return;
+            if (!lowestSell) return;
+            if (highestBuy.price < lowestSell.price) return
             const fillQuantity = Math.min(highestBuy.quantity, lowestSell.quantity);
             const fillPrice = (highestBuy.timestamp.getTime() > lowestSell.timestamp.getTime()) ? lowestSell.price : highestBuy.price;
             const tradeSide = (highestBuy.timestamp.getTime() > lowestSell.timestamp.getTime()) ? "buy" : "sell";
-            highestBuy.fillQuantity = fillQuantity;
-            lowestSell.fillQuantity = fillQuantity;
-            highestBuy.fillPrice = fillPrice;
-            lowestSell.fillPrice = fillPrice;
-            if (highestBuy.quantity === highestBuy.fillQuantity) {
-                highestBuy.status = "closed";
-            }
-            if (lowestSell.quantity === lowestSell.fillQuantity) {
-                lowestSell.status = "closed";
-            }
+            highestBuy.fill(fillQuantity, fillPrice);
+            lowestSell.fill(fillQuantity, fillPrice);
             await this.orderRepository.updateOrder(highestBuy);
             await this.orderRepository.updateOrder(lowestSell);
+            const trade = Trade.create(input.marketId, highestBuy.orderId, lowestSell.orderId, tradeSide, fillQuantity, fillPrice)
+            await this.tradeRepository.saveTrade(trade)
         }
     }
 }

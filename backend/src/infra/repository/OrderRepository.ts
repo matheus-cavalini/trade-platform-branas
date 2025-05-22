@@ -31,7 +31,7 @@ export class OrderRepositoryDatabase implements OrderRepository {
         const ordersData = await this.connection.query("select * from ccca.order where market_id = $1 and status = $2", [marketId, status])
         const orders: Order[] = [];
         for (const orderData of ordersData) {
-            orders.push(new Order(orderData.order_id, orderData.market_id, orderData.account_id, orderData.side, parseFloat(orderData.quantity), parseFloat(orderData.price), orderData.status, orderData.timestamp))
+            orders.push(new Order(orderData.order_id, orderData.market_id, orderData.account_id, orderData.side, parseFloat(orderData.quantity), parseFloat(orderData.price), orderData.status, orderData.timestamp, parseFloat(orderData.fill_quantity), parseFloat(orderData.fill_price)))
         }
         return orders;
     }
